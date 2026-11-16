@@ -1,1 +1,80 @@
+@startuml
+left to right direction
+skinparam nodesep 40
+skinparam ranksep 100
 
+' Добавим немного цвета для красоты
+skinparam actorBackgroundColor #E2E8F0
+skinparam actorBorderColor #94A3B8
+skinparam usecaseBackgroundColor #F8FAFC
+skinparam usecaseBorderColor #60A5FA
+skinparam defaultFontName "Segoe UI" 
+' или "Roboto", "Inter", "Helvetica Neue"
+
+together {
+  actor Гость <<Неавторизован>>
+actor Покупатель <<Авторизован>>
+}
+
+together {
+actor Кладовщик
+actor Курьер
+actor Администратор
+actor "Сотрудник" as AphUser <<Авторизован>>
+}
+
+together {
+actor "Платежный шлюз банка" as BankAPI <<system>>
+actor "Служба доставки" as DeliveryService <<system>>
+database "База данных склада" as DataBase 
+}
+
+
+rectangle "Маркетплейс"{
+  (Просмотреть витрину товаров) as (View)
+  (Зарегистрироваться) as (Register) 
+  (Авторизоваться) as (Login) 
+  (Добавить товар в корзину) as (Bin)
+  (Оформить заказ) as (Order)
+  (Просмотреть заказ) as (Saw)
+  (Собрать заказ) as (Make)
+  (Проверить наличие товара на складе) as (Check)
+  (Применить купон на скидку) as (Sale)
+  (Доставить заказ) as (Deliver)
+  (Заблокировать пользователя) as (Block)
+  (Передать в службу доставки) as (SendDelivery)
+  (Передать курьеру) as (SendCourier)
+  (Проверить место на складе) as (CheckPlace)
+  (Оплатить заказ) as (Pay)
+  (Получить заказ) as (Recive)
+}
+
+
+AphUser <|-- Администратор
+AphUser <|-- Кладовщик
+AphUser <|-- Курьер
+Гость <|-- Покупатель
+
+Гость -- View
+Гость -- Login
+Покупатель -- Bin
+Покупатель -- Order
+Кладовщик -- Saw
+Курьер -- Saw
+Курьер -- Deliver
+Администратор -- Block
+Check -- DataBase
+CheckPlace -- DataBase
+Кладовщик -- Make
+SendDelivery -- DeliveryService
+Pay -- BankAPI
+Кладовщик -- SendCourier
+Кладовщик -- SendDelivery
+Курьер -- Recive
+
+Order ..> Check: <<include>> 
+Sale -right.-> Order: <<extend>> 
+Register -right.-> Login: <<extend>>
+Make ..> CheckPlace: <<include>>
+Order ..> Pay :<<include>>
+@enduml
